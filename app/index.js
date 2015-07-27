@@ -5,20 +5,30 @@ var generator = require('yeoman-generator'),
     _ = require('lodash'),
     path = require('path'),
     fs = require('fs-extra'),
-    prompt = require('../prompts');
+    chalk = require('chalk'),
+    logo = require('./logo'),
+    prompt = require('./prompts'),
+    installCliTools = require('./install/cli-tools');
 
 var config = {
         'cartridges-remote': '/srv/epages/eproot/Cartridges',
         'webroot': '/srv/epages/eproot/Shared/WebRoot',
         'perl-exec': '/srv/epages/eproot/Perl/bin/perl'
-    },
-
-    versions;
-
-    // Cartridges repo
-
+    };
 
 module.exports = generator.Base.extend({
+    initializing: function () {
+        this.log(chalk.red(logo));
+        this.log(chalk.bold.yellow('Please start your ePages 6 Virtual Machine before you continue'));
+        // Try to load a existing config
+        try {
+            this.log(chalk.green('Loading existing config parameters'));
+            _.assign(config, require(this.destinationPath('config.json')));
+        } catch (e) {
+            this.log('Couldn\'t find a existing config parameters');
+        }
+    },
+
     prompting: function () {
         var self = this,
             done = this.async();
@@ -27,7 +37,8 @@ module.exports = generator.Base.extend({
                 prompt.domain(config['vm-domain']),
                 prompt.user(config['vm-user']),
                 prompt.password(config['vm-pwd']),
-                prompt.cartridges(config['cartridges-local'])], function (input) {
+                prompt.cartridges(config['cartridges-local']),
+                prompt.watch(config['watch-tasks'])], function (input) {
             _.assign(config, input);
             done();
         }.bind(this));
@@ -57,6 +68,14 @@ module.exports = generator.Base.extend({
         });
     },
 
+    cleanup: function () {
+        fs.removeSync(this.destinationPath('gulpfile.js'));
+        fs.removeSync(this.destinationPath('package.json'));
+        fs.removeSync(this.destinationPath('lib/perl.js'));
+        fs.removeSync(this.destinationPath('lib/file-watch.js'));
+        fs.removeSync(this.destinationPath('node_modules'));
+    },
+
     copyFiles: function () {
         this.fs.copyTpl(
             this.templatePath('gulp/gulpfile.js'),
@@ -79,8 +98,12 @@ module.exports = generator.Base.extend({
         );
     },
 
+    writing: function () {
+        fs.writeJSONSync(this.destinationPath('config.json'), config);
+    },
 
     install: function () {
+        installCliTools(config, this.log);
         this.npmInstall();
     }
 });

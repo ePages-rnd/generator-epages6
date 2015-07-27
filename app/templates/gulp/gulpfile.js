@@ -5,6 +5,7 @@
 var gulp = require('gulp'),
     eslint = require('gulp-eslint'),
     gutil = require('gulp-util'),
+    livereload = require('gulp-livereload'),
 
     sequence = require('run-sequence'),
     path = require('path'),
@@ -15,13 +16,16 @@ var gulp = require('gulp'),
 
     config = require('./config');
 
+livereload.listen();
+
 /**
  * File watch and trigger build of:
  * 		* JavaScript
  * 		* CSS/LESS
  * 		* Perl
+ * 		* HTML
  */
-gulp.task('watch', ['scripts', 'styles', 'perl']);
+gulp.task('watch', config['watch-tasks']);
 
 /**
  * CSS/LESS
@@ -29,7 +33,8 @@ gulp.task('watch', ['scripts', 'styles', 'perl']);
 gulp.task('styles', ['is-online'], function () {
     return watcher(['/**/Data/Public/**/*.css', '/**/Data/Public/**/*.less'], function (source, dist, copyToShared) {
         gulp.src(source)
-            .pipe(copyToShared);
+            .pipe(copyToShared)
+            .pipe(livereload());
     });
 });
 
@@ -42,7 +47,8 @@ gulp.task('scripts', ['is-online'], function () {
             // Linting
             .pipe(eslint())
             .pipe(eslint.format())
-            .pipe(copyToShared);
+            .pipe(copyToShared)
+            .pipe(livereload());
     });
 });
 
@@ -56,6 +62,20 @@ gulp.task('perl', ['is-online'], function () {
             .replace(path.sep, '/');
 
         return perl.lint(remoteFile);
+    });
+});
+
+/**
+ * Html
+ */
+gulp.task('html', ['is-online'], function () {
+    return watcher('/**/*.html', function (source) {
+        var remoteFile = source
+            .replace(config['cartridges-local'], config['cartridges-remote'])
+            .replace(path.sep, '/');
+
+        return perl.tle(remoteFile)
+            .pipe(livereload());
     });
 });
 

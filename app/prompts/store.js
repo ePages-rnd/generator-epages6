@@ -5,11 +5,18 @@ var path = require('path'),
 
 module.exports = function (config, done) {
     var ignoredStores = ['Site', 'StoreCatalog', 'Storelib'],
+    
         ssh = new SimpleSSH({
             host: config['vm-domain'],
             user: config['vm-usr'],
             pass: config['vm-pwd']
-        });
+        }),
+
+        input = {
+            type: 'list',
+            name: 'store',
+            message: 'Store'
+        };
 
     ssh.exec('ls -d ' + config.webroot + '/StoreTypes/' + config.version + '/*/', {
         out: function (response) {
@@ -28,11 +35,13 @@ module.exports = function (config, done) {
                 stores.push(storeName);
             });
 
-            done({type: 'list',
-                name: 'store',
-                message: 'Store',
-                choices: stores
-            });
+            input.choices = stores;
+
+            if(config.store !== undefined) {
+                input.default = config.store;
+            }
+
+            done(input);
         }
     }).start();
 }

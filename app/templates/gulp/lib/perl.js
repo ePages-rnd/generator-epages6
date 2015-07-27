@@ -24,10 +24,28 @@ var lint = function (remoteFile) {
             stream = stream.toString();
 
             if (stream.indexOf('syntax error') > -1) {
+                process.stdout.write('\x07');
                 return gutil.log(gutil.colors.red(stream));
             }
 
             if (stream.indexOf('syntax OK') > -1) {
+                return gutil.log(gutil.colors.green(stream));
+            }
+        });
+},
+
+tle = function (remoteFile) {
+    return ssh
+        .shell('ep6-tlec -file ' + remoteFile)
+        .on('ssh2Data', function (stream) {
+            stream = stream.toString();
+
+            if (stream.indexOf('syntax error') > -1) {
+                process.stdout.write('\x07');
+                return gutil.log(gutil.colors.red(stream));
+            }
+
+            if (stream.indexOf('syntax ok') > -1) {
                 return gutil.log(gutil.colors.green(stream));
             }
         });
@@ -59,5 +77,6 @@ build = function () {
 module.exports = {
     lint: lint,
     reinstall: reinstall,
-    build: build
+    build: build,
+    tle: tle
 };

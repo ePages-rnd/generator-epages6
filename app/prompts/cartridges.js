@@ -10,9 +10,12 @@ module.exports = function (config) {
         input = {
             type: 'input',
             name: 'cartridges-local',
-            message: 'Local Cartridges Folder',
-            default: config
+            message: 'Local Cartridges Folder'
         };
+
+    if (config !== undefined) {
+        input.default = path.basename(config);
+    }
 
     _.forEach(fs.readdirSync(workingPath), function (folderName) {
         var folderPath = path.resolve(workingPath, folderName);
@@ -27,6 +30,9 @@ module.exports = function (config) {
     if (directories.length > 0) {
         input.type = 'list';
         input.choices = directories;
+        input.filter = function (directory) {
+            return workingPath + path.sep + directory;
+        }
     }
 
     return input;

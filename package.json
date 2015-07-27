@@ -10,6 +10,7 @@
     "yeoman-generator"
   ],
   "dependencies": {
+    "chalk": "^1.1.0",
     "fs-extra": "^0.22.1",
     "lodash": "^3.10.0",
     "simple-ssh": "^0.8.6",
