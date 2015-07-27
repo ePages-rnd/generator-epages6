@@ -1,5 +1,6 @@
 {
   "name": "epages6-devtools",
+  "private": true,
   "version": "0.1.0",
   "description": "ePages 6 Devtools",
   "main": "index.js",
