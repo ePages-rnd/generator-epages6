@@ -1,17 +1,13 @@
 # ePages 6 Yeoman Generator
 Tools and automation for ePages 6 development.
 
-## Precondition
-
-You need a running vm with ePages 6 and shared ``Cartridges`` in your local dev directory.
-
 ## Installation
 
 1. Install [NodeJS](https://nodejs.org/)
 
 2. Install Yeoman ``npm install -g yo``
 
-3. Install the ePages 6 generator ``npm install --global https://github.com/ePages-rnd/generator-epages6/archive/master.zip``
+3. Install the ePages 6 generator ``npm install --g generator-epages6``
 
 4. Go one level above your local ``ePages 6 cartridges`` folder and run ``yo epages6``
 
@@ -21,7 +17,7 @@ You need a running vm with ePages 6 and shared ``Cartridges`` in your local dev 
 
 ## Available gulp tasks
 
-``default``: Triggers ``build`` and the file ``watch``
+``default``: Triggers ``watch``
 
 ``build``: Runs ``make build_ui``
 

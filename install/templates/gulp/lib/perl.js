@@ -19,11 +19,11 @@ var sshConfig = {
 
 var lint = function (remoteFile) {
     return ssh
-        .shell(config['perl-exec'] + ' -cw ' + remoteFile)
+        .shell([config['perl-exec'] + ' -cw ' + remoteFile, 'ep6-perlcritic ' + remoteFile])
         .on('ssh2Data', function (stream) {
             stream = stream.toString();
 
-            if (stream.indexOf('syntax error') > -1) {
+            if (stream.indexOf('syntax error') > -1 || stream.indexOf('not ok 1 - Perl::Critic') > -1) {
                 process.stdout.write('\x07');
                 return gutil.log(gutil.colors.red(stream));
             }
@@ -31,6 +31,7 @@ var lint = function (remoteFile) {
             if (stream.indexOf('syntax OK') > -1) {
                 return gutil.log(gutil.colors.green(stream));
             }
+
         });
 },
 

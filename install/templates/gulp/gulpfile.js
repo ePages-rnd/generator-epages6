@@ -7,7 +7,6 @@ var gulp = require('gulp'),
     gutil = require('gulp-util'),
     livereload = require('gulp-livereload'),
 
-    sequence = require('run-sequence'),
     path = require('path'),
 
     ping = require('ping'),
@@ -35,6 +34,9 @@ gulp.task('styles', ['is-online'], function () {
         gulp.src(source)
             .pipe(copyToShared)
             .pipe(livereload());
+    }, function (source, removeFromShared) {
+        gulp.src(source)
+            .pipe(removeFromShared);
     });
 });
 
@@ -49,6 +51,9 @@ gulp.task('scripts', ['is-online'], function () {
             .pipe(eslint.format())
             .pipe(copyToShared)
             .pipe(livereload());
+    }, function (source, removeFromShared) {
+        gulp.src(source)
+            .pipe(removeFromShared);
     });
 });
 
@@ -100,6 +105,4 @@ gulp.task('build', ['is-online'], perl.build);
  * 		* build
  * 		* watch
  */
-gulp.task('default', function (done) {
-    sequence('build', 'watch', done);
-});
+gulp.task('default', ['watch']);
