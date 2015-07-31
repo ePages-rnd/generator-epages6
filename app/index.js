@@ -13,7 +13,7 @@ module.exports = generator.Base.extend({
     init: function () {
         switch (this.action) {
             default:
-                this.composeWith('epages6:install');
+                this.composeWith('epages6:dev-environment');
         }
     }
 });

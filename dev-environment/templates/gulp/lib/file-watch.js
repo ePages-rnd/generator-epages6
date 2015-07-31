@@ -3,6 +3,7 @@
 
 var _ = require('lodash'),
     gulp = require('gulp'),
+    gutil = require('gulp-util'),
     GulpSSH = require('gulp-ssh'),
     path = require('path'),
     config = require('../config');
@@ -23,8 +24,12 @@ var buildPath = [config.webroot, 'StoreTypes', config.version, config.store].joi
 
 module.exports = function (pattern, onChange, onDelete) {
     if (typeof pattern === 'string') {
-        pattern = pattern.split('my-fake-split');
+        pattern = pattern.split();
     }
+
+    _.forEach(pattern, function (filePattern) {
+        gutil.log(gutil.colors.blue('Watching: ' + filePattern));
+    });
 
     pattern = _.map(pattern, function (element) {
         return config['cartridges-local'] + element;
