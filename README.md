@@ -1,7 +1,7 @@
 # ePages 6 Yeoman Generator
 Tools and automation for ePages 6 development.
 
-[Preview](!https://github.com/ePages-rnd/generator-epages6/demo-data/demo-generator.gif)
+![Preview](https://github.com/ePages-rnd/generator-epages6/demo-data/demo-generator.gif)
 
 ## Installation
 
