@@ -3,7 +3,8 @@
 
 var config = require('../config'),
     GulpSSH = require('gulp-ssh'),
-    gutil = require('gulp-util');
+    gutil = require('gulp-util'),
+    slash = require('slash');
 
 var sshConfig = {
         host: config['vm-domain'],
@@ -36,8 +37,10 @@ var parseStream = function (onSuccess, onError) {
         var outputEval = parseStream(function (stream) {
             return stream.indexOf('syntax OK') > -1;
         }, function (stream) {
-            return stream.indexOf('syntax error') > -1 || stream.indexOf('not ok 1 - Perl::Critic') > -1;
+            return stream.indexOf('syntax error') > -1 || stream.indexOf('Failed test') > -1;
         });
+
+        remoteFile = slash(remoteFile);
 
         gutil.log(gutil.colors.blue('Linting: ' + remoteFile));
 
@@ -53,6 +56,8 @@ var parseStream = function (onSuccess, onError) {
         }, function (stream) {
             return stream.indexOf('syntax error') > -1;
         });
+
+        remoteFile = slash(remoteFile);
 
         gutil.log(gutil.colors.blue('Analysing TLE: ' + remoteFile));
 

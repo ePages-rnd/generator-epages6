@@ -1,3 +1,4 @@
+/*eslint-env node*/
 'use strict';
 
 var _ = require('lodash');
@@ -25,5 +26,5 @@ module.exports = function (config) {
         });
     }
 
-    return input
+    return input;
 };

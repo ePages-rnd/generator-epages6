@@ -62,11 +62,7 @@ gulp.task('scripts', ['is-online'], function () {
  */
 gulp.task('perl', ['is-online'], function () {
     return watcher(['/**/*.pm', '/**/*.pl', '/**/*.t'], function (source) {
-        var remoteFile = source
-            .replace(config['cartridges-local'], config['cartridges-remote'])
-            .replace(path.sep, '/');
-
-        return perl.lint(remoteFile);
+        return perl.lint(source.replace(config['cartridges-local'], config['cartridges-remote']));
     });
 });
 
@@ -75,11 +71,7 @@ gulp.task('perl', ['is-online'], function () {
  */
 gulp.task('html', ['is-online'], function () {
     return watcher('/**/*.html', function (source) {
-        var remoteFile = source
-            .replace(config['cartridges-local'], config['cartridges-remote'])
-            .replace(path.sep, '/');
-
-        return perl.tle(remoteFile)
+        return perl.tle(source.replace(config['cartridges-local'], config['cartridges-remote']))
             .pipe(livereload());
     });
 });
@@ -90,6 +82,7 @@ gulp.task('html', ['is-online'], function () {
 gulp.task('is-online', function (done) {
     ping.sys.probe(config['vm-domain'], function (isAlive) {
         if (isAlive) {
+            gutil.log(gutil.colors.green('VM ' + config['vm-domain'] + ' is online'));
             return done();
         }
         gutil.log(gutil.colors.red('VM ' + config['vm-domain'] + ' seems to be offline'));

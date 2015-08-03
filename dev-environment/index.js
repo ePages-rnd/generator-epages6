@@ -30,8 +30,7 @@ module.exports = generator.Base.extend({
     },
 
     prompting: function () {
-        var self = this,
-            done = this.async();
+        var done = this.async();
 
         this.prompt([
                 prompt.domain(config['vm-domain']),
