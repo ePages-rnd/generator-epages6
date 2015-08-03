@@ -22,5 +22,4 @@ fs.readdirSync(__dirname).forEach(function (file) {
     modules[path.basename(file, '.js')] = require('./' + file);
 });
 
-
 module.exports = modules;

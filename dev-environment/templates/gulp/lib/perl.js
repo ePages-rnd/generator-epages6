@@ -18,53 +18,63 @@ var ssh = new GulpSSH({
         sshConfig: sshConfig
     });
 
-var parseStream = function (onSuccess, onError) {
-        return function (stream) {
-            stream = stream.toString();
+var streamWrapper = function (command, onSuccess, onError) {
+        var output = '',
+            dumper = function (stream) {
+                output += stream.toString();
+            };
 
-            if (onSuccess !== undefined && onSuccess(stream)) {
-                return gutil.log(gutil.colors.green(stream));
-            }
+        return ssh.exec(command)
+            .on('ssh2Data', dumper)
+            .on('error', dumper)
+            .on('exit', function () {
+                if (onSuccess !== undefined && onSuccess(output)) {
+                    gutil.log(gutil.colors.green(output.replace(/^\s+|\s+$/g, '')));
+                    output = '';
+                    return;
+                }
 
-            if (onError !== undefined && onError(stream)) {
-                process.stdout.write('\x07');
-                return gutil.log(gutil.colors.red(stream));
-            }
-        };
+                if (onError !== undefined && onError(output)) {
+                    process.stdout.write('\x07');
+                    gutil.log(gutil.colors.red(output.replace(/^\s+|\s+$/g, '')));
+                    output = '';
+                    return;
+                }
+            });
     },
 
     lint = function (remoteFile) {
-        var outputEval = parseStream(function (stream) {
-            return stream.indexOf('syntax OK') > -1;
-        }, function (stream) {
-            return stream.indexOf('syntax error') > -1 || stream.indexOf('Failed test') > -1;
-        });
-
         remoteFile = slash(remoteFile);
 
         gutil.log(gutil.colors.blue('Linting: ' + remoteFile));
 
-        return ssh
-            .exec([config['perl-exec'] + ' -cw ' + remoteFile, 'ep6-perlcritic ' + remoteFile])
-            .on('ssh2Data', outputEval)
-            .on('error', outputEval);
+        return streamWrapper([
+                config['perl-exec'] + ' -cw ' + remoteFile, 'ep6-perlcritic ' + remoteFile
+            ],
+            function (stream) {
+                return stream.indexOf('syntax OK') > -1;
+            },
+            function (stream) {
+                return stream.indexOf('syntax error') > -1 || stream.indexOf('Failed test') > -1;
+            }
+        );
     },
 
     tle = function (remoteFile) {
-        var outputEval = parseStream(function (stream) {
-            return stream.indexOf('syntax ok') > -1;
-        }, function (stream) {
-            return stream.indexOf('syntax error') > -1;
-        });
-
         remoteFile = slash(remoteFile);
 
         gutil.log(gutil.colors.blue('Analysing TLE: ' + remoteFile));
 
-        return ssh
-            .exec('ep6-tlec -file ' + remoteFile)
-            .on('ssh2Data', outputEval)
-            .on('error', outputEval);
+        return streamWrapper([
+                'ep6-tlec -file ' + remoteFile
+            ],
+            function (stream) {
+                return stream.indexOf('syntax ok') > -1;
+            },
+            function (stream) {
+                return stream.indexOf('syntax error') > -1;
+            }
+        );
     },
 
     reinstall = function () {
