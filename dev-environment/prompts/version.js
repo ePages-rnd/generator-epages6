@@ -1,3 +1,4 @@
+/*eslint-env node*/
 'use strict';
 
 var SimpleSSH = require('simple-ssh');
@@ -17,13 +18,13 @@ module.exports = function (config, done) {
 
     ssh.exec('ls -d ' + config.webroot + '/StoreTypes/*/', {
         out: function (response) {
-            input.choices = response.match(/(?:\d{1,2}\.){2}\d{1,3}/g);
+            input.choices = response.match(/(?:\d{1,2}\.){2}\d{1,3}/g).reverse();
 
             if (config.version !== undefined) {
                 input.default = config.version;
             }
-            
+
             done(input);
         }
     }).start();
-}
+};

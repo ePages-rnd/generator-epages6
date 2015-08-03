@@ -1,3 +1,4 @@
+/*eslint-env node*/
 'use strict';
 
 var SimpleSSH = require('simple-ssh');
@@ -14,4 +15,4 @@ module.exports = function (config, done) {
             done(response);
         }
     }).start();
-}
+};

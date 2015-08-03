@@ -1,13 +1,15 @@
 # ePages 6 Yeoman Generator
 Tools and automation for ePages 6 development.
 
+[Preview](!https://github.com/ePages-rnd/generator-epages6/demo-data/demo-generator.gif)
+
 ## Installation
 
 1. Install [NodeJS](https://nodejs.org/)
 
 2. Install Yeoman ``npm install -g yo``
 
-3. Install the ePages 6 generator ``npm install --g generator-epages6``
+3. Install the ePages 6 generator ``npm install -g generator-epages6``
 
 4. Go one level above your local ``ePages 6 cartridges`` folder and run ``yo epages6``
 

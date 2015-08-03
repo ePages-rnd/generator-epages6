@@ -1,3 +1,4 @@
+/*eslint-env node*/
 'use strict';
 
 module.exports = function (config) {
@@ -6,5 +7,5 @@ module.exports = function (config) {
         name: 'vm-usr',
         message: 'VM Username',
         default: config || 'root'
-    }
+    };
 };

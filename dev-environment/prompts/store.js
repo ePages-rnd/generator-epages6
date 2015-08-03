@@ -1,3 +1,4 @@
+/*eslint-env node*/
 'use strict';
 
 var path = require('path'),
@@ -5,7 +6,7 @@ var path = require('path'),
 
 module.exports = function (config, done) {
     var ignoredStores = ['Site', 'StoreCatalog', 'Storelib'],
-    
+
         ssh = new SimpleSSH({
             host: config['vm-domain'],
             user: config['vm-usr'],
@@ -37,7 +38,7 @@ module.exports = function (config, done) {
 
             input.choices = stores;
 
-            if(config.store !== undefined) {
+            if (config.store !== undefined) {
                 input.default = config.store;
             }
 

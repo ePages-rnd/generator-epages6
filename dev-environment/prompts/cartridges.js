@@ -1,13 +1,10 @@
+/*eslint-env node*/
 'use strict';
 
-var fs = require('fs'),
-    path = require('path'),
-    _ = require('lodash');
+var path = require('path');
 
 module.exports = function (config) {
-    var workingPath = process.cwd(),
-        directories = [],
-        input = {
+    var input = {
             type: 'input',
             name: 'cartridges-local',
             message: 'Local Cartridges Folder',
