@@ -1,15 +1,16 @@
 {
   "name": "generator-epages6",
-  "version": "0.3.1",
-  "description": "ePages 6 devtools generator",
-  "preferGlobal": true,
+  "version": "0.3.5",
+  "description": "ePages 6 Devtools Generator",
+  "main": "app/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/ePages-rnd/generator-epages6.git"
   },
   "files": [
     "app",
-    "router"
+    "dev-environment",
+    "logo.js"
   ],
   "keywords": [
     "yeoman-generator"

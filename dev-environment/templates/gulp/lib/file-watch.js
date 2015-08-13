@@ -5,6 +5,7 @@ var _ = require('lodash'),
     gulp = require('gulp'),
     gutil = require('gulp-util'),
     GulpSSH = require('gulp-ssh'),
+    watch = require('gulp-watch'),
     path = require('path'),
     config = require('../config');
 
@@ -35,19 +36,21 @@ module.exports = function (pattern, onChange, onDelete) {
         return config['cartridges-local'] + element;
     });
 
-    return gulp.watch(pattern, {interval: 1500}, function (file) {
-        var dest;
+    return gulp.src(pattern).pipe(
+        watch(pattern, function (file) {
+            var dest;
 
-        file.path.replace(path.sep, '/');
+            file.path.replace(path.sep, '/');
 
-        if (file.type === 'deleted' && onDelete !== undefined) {
-            dest = buildPath + file.path.replace(/^.*?\/Data\/Public/, '');
-            return onDelete(file.path, ssh.shell('rm ' + dest));
-        }
+            if (file.event === 'unlink' && onDelete !== undefined) {
+                dest = buildPath + file.path.replace(/^.*?\/Data\/Public/, '');
+                return onDelete(file.path, ssh.shell('rm ' + dest));
+            }
 
-        if (file.type === 'changed' && onChange !== undefined) {
-            dest = buildPath + path.dirname(file.path.replace(/^.*?\/Data\/Public/, ''));
-            return onChange(file.path, dest, ssh.dest(dest));
-        }
-    });
+            if (file.event === 'change' && onChange !== undefined) {
+                dest = buildPath + path.dirname(file.path.replace(/^.*?\/Data\/Public/, ''));
+                return onChange(file.path, dest, ssh.dest(dest));
+            }
+        })
+    );
 };

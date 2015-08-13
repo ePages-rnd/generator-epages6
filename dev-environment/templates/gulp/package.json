@@ -24,6 +24,7 @@
     "gulp-eslint": "^0.15.0",
     "gulp-livereload": "^3.8.0",
     "gulp-shell": "^0.4.2",
+    "gulp-watch": "^4.3.4",
     "gulp-ssh": "https://github.com/alexander-heimbuch/gulp-ssh.git",
     "gulp-util": "^3.0.6",
     "lodash": "^3.10.0",
