@@ -44,12 +44,15 @@ module.exports = function (pattern, onChange, onDelete) {
 
             if (file.event === 'unlink' && onDelete !== undefined) {
                 dest = buildPath + file.path.replace(/^.*?\/Data\/Public/, '');
-                return onDelete(file.path, ssh.shell('rm ' + dest));
+                onDelete(file.path, ssh.shell('rm ' + dest));
             }
 
             if (file.event === 'change' && onChange !== undefined) {
                 dest = buildPath + path.dirname(file.path.replace(/^.*?\/Data\/Public/, ''));
-                return onChange(file.path, dest, ssh.dest(dest));
+                onChange(file.path, dest, function () {
+                    return ssh.dest(dest)
+                        .pipe(ssh.exec(['chown eprunapp:apache'));
+                });
             }
         })
     );

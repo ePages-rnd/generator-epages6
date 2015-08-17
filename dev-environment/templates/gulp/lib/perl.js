@@ -77,26 +77,43 @@ var streamWrapper = function (command, onSuccess, onError) {
         );
     },
 
-    reinstall = function () {
+    reinstall = function (done) {
+        var connected = false;
+
         gutil.log(gutil.colors.yellow('Starting reinstall, this will take a while ... time to grab a coffee'));
+
         return ssh.exec([config['perl-exec'] + ' Makefile.PL', 'make reinstall'], {filePath: config['cartridges-remote']})
             .on('ssh2Data', function (stream) {
-                gutil.log(stream.toString());
+                gutil.log(stream.toString().replace(/^\s+|\s+$/g, ''));
             })
             .on('error', function (stream) {
-                gutil.log(gutil.colors.red(stream.toString()));
+                gutil.log(gutil.colors.red(stream.toString().replace(/^\s+|\s+$/g, '')));
+            })
+            .on('close', function () {
+                if (connected) {
+                    done();
+                }
+                connected = true;
             });
     },
 
-    build = function () {
-        return ssh.exec('make build_ui', {
+    build = function (done) {
+        var connected = false;
+
+        ssh.exec([config['perl-exec'] + ' Makefile.PL', 'make build_ui'], {
                 filePath: config['cartridges-base']
             })
             .on('ssh2Data', function (stream) {
-                gutil.log(stream.toString());
+                gutil.log(stream.toString().replace(/^\s+|\s+$/g, ''));
             })
             .on('error', function (stream) {
-                gutil.log(gutil.colors.red(stream.toString()));
+                gutil.log(gutil.colors.red(stream.toString().replace(/^\s+|\s+$/g, '')));
+            })
+            .on('close', function () {
+                if (connected) {
+                    done();
+                }
+                connected = true;
             });
     };
 
