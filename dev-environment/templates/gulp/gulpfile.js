@@ -7,8 +7,6 @@ var gulp = require('gulp'),
     gutil = require('gulp-util'),
     livereload = require('gulp-livereload'),
 
-    path = require('path'),
-
     ping = require('ping'),
     watcher = require('./lib/file-watch'),
     perl = require('./lib/perl'),
@@ -89,9 +87,19 @@ gulp.task('is-online', function (done) {
     });
 });
 
-gulp.task('init', ['is-online'], perl.reinstall);
+gulp.task('reinstall', ['is-online'], function (done) {
+    perl.reinstall(function () {
+        done();
+        process.exit(0);
+    });
+});
 
-gulp.task('build', ['is-online'], perl.build);
+gulp.task('build', ['is-online'], function (done) {
+    perl.build(function () {
+        done();
+        process.exit(0);
+    });
+});
 
 /**
  * Default task including:
