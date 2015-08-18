@@ -71,6 +71,14 @@ gulp.task('html', ['is-online'], function () {
     return watcher('/**/*.html', function (source) {
         return perl.tle(source.replace(config['cartridges-local'], config['cartridges-remote']))
             .pipe(livereload());
+    }),
+    watcher(['/**/Data/Public/**/*.tmpl.html'], function (source, dist, copyToShared) {
+        gulp.src(source)
+            .pipe(copyToShared)
+            .pipe(livereload());
+    }, function (source, removeFromShared) {
+        gulp.src(source)
+            .pipe(removeFromShared);
     });
 });
 
