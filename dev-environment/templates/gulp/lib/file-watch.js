@@ -7,7 +7,9 @@ var _ = require('lodash'),
     GulpSSH = require('gulp-ssh'),
     watch = require('gulp-watch'),
     path = require('path'),
-    config = require('../config');
+    config = require('../config'),
+    figures = require('figures'),
+    Spinner = require('cli-spinner').Spinner;
 
 var buildPath = [config.webroot, 'StoreTypes', config.version, config.store].join('/'),
 
@@ -24,35 +26,48 @@ var buildPath = [config.webroot, 'StoreTypes', config.version, config.store].joi
     });
 
 module.exports = function (pattern, onChange, onDelete) {
+    var activitySpinner,
+        spinnerTimeout,
+        searchPatterns = '';
+
     if (typeof pattern === 'string') {
         pattern = pattern.split();
     }
 
     _.forEach(pattern, function (filePattern) {
-        gutil.log(gutil.colors.blue('Watching: ' + filePattern));
+        searchPatterns += ' ' + filePattern;
     });
 
     pattern = _.map(pattern, function (element) {
         return config['cartridges-local'] + element;
     });
 
+    activitySpinner = new Spinner(gutil.colors.blue('           %s processing' + searchPatterns));
+    activitySpinner.setSpinnerString(figures.bullet + ' ');
+    activitySpinner.setSpinnerDelay(10);
+    activitySpinner.start();
+
     return gulp.src(pattern).pipe(
         watch(pattern, function (file) {
-            var dest;
+            var relativePath = file.path.replace(/^.*?\/Data\/Public/, ''),
+                destinationFilePath = buildPath + relativePath,
+                destinationDirectoryPath = buildPath + path.dirname(relativePath);
 
             file.path.replace(path.sep, '/');
 
             if (file.event === 'unlink' && onDelete !== undefined) {
-                dest = buildPath + file.path.replace(/^.*?\/Data\/Public/, '');
-                onDelete(file.path, ssh.shell('rm ' + dest));
+                onDelete(file.path, ssh.shell('rm ' + destinationFilePath));
             }
 
             if (file.event === 'change' && onChange !== undefined) {
-                dest = buildPath + path.dirname(file.path.replace(/^.*?\/Data\/Public/, ''));
-                onChange(file.path, dest, function () {
-                    return ssh.dest(dest)
-                        .pipe(ssh.exec(['chown eprunapp:apache']));
-                });
+                onChange(file.path, ssh.dest(destinationDirectoryPath), ssh.exec(['chown eprunapp:apache ' + destinationFilePath]));
+            }
+
+            if (file.event === undefined) {
+                clearTimeout(spinnerTimeout);
+                spinnerTimeout = setTimeout(function () {
+                    activitySpinner.stop(true);
+                }, 10000);
             }
         })
     );

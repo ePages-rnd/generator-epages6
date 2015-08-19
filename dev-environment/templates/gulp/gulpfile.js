@@ -8,9 +8,9 @@ var gulp = require('gulp'),
     livereload = require('gulp-livereload'),
 
     ping = require('ping'),
+
     watcher = require('./lib/file-watch'),
     perl = require('./lib/perl'),
-
     config = require('./config');
 
 livereload.listen();
@@ -28,10 +28,10 @@ gulp.task('watch', config['watch-tasks']);
  * CSS/LESS
  */
 gulp.task('styles', ['is-online'], function () {
-    return watcher(['/**/Data/Public/**/*.css', '/**/Data/Public/**/*.less'], function (source, dist, copyToShared) {
+    return watcher(['/**/Data/Public/**/*.css', '/**/Data/Public/**/*.less'], function (source, copyToShared, fixAccessRights) {
         gulp.src(source)
             .pipe(copyToShared)
-            .pipe(livereload());
+            .pipe(fixAccessRights);
     }, function (source, removeFromShared) {
         gulp.src(source)
             .pipe(removeFromShared);
@@ -42,13 +42,13 @@ gulp.task('styles', ['is-online'], function () {
  * Javascript
  */
 gulp.task('scripts', ['is-online'], function () {
-    return watcher('/**/Data/Public/**/*.js', function (source, dist, copyToShared) {
+    return watcher('/**/Data/Public/**/*.js', function (source, copyToShared, fixAccessRights) {
         gulp.src(source)
             // Linting
             .pipe(eslint())
             .pipe(eslint.format())
             .pipe(copyToShared)
-            .pipe(livereload());
+            .pipe(fixAccessRights);
     }, function (source, removeFromShared) {
         gulp.src(source)
             .pipe(removeFromShared);
