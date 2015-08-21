@@ -1,120 +1,67 @@
 /*eslint-env node*/
 'use strict';
 
-var config = require('../config'),
-    GulpSSH = require('gulp-ssh'),
+var path = require('path'),
+    config = require('../config'),
+    ssh = require('./ssh'),
     gutil = require('gulp-util'),
     slash = require('slash');
 
-var sshConfig = {
-        host: config['vm-domain'],
-        port: 22,
-        username: config['vm-usr'],
-        password: config['vm-pwd']
-    };
+var parser = function (data, success, error) {
+        if (data.indexOf(success) > -1) {
+            gutil.log(gutil.colors.green(data.replace(/^\s+|\s+$/g, '')));
+            return;
+        }
 
-var ssh = new GulpSSH({
-        ignoreErrors: true,
-        sshConfig: sshConfig
-    });
-
-var streamWrapper = function (command, onSuccess, onError) {
-        var output = '',
-            dumper = function (stream) {
-                output += stream.toString();
-            };
-
-        return ssh.exec(command)
-            .on('ssh2Data', dumper)
-            .on('error', dumper)
-            .on('exit', function () {
-                if (onSuccess !== undefined && onSuccess(output)) {
-                    gutil.log(gutil.colors.green(output.replace(/^\s+|\s+$/g, '')));
-                    output = '';
-                    return;
-                }
-
-                if (onError !== undefined && onError(output)) {
-                    process.stdout.write('\x07');
-                    gutil.log(gutil.colors.red(output.replace(/^\s+|\s+$/g, '')));
-                    output = '';
-                    return;
-                }
-            });
+        if (data.indexOf(error) > -1) {
+            process.stdout.write('\x07');
+            gutil.log(gutil.colors.red(data.replace(/^\s+|\s+$/g, '')));
+            return;
+        }
     },
 
-    lint = function (remoteFile) {
-        remoteFile = slash(remoteFile);
+    lint = function (file) {
+        var remoteFile = slash(file),
 
-        gutil.log(gutil.colors.blue('Linting: ' + remoteFile));
+            perlCritic = ssh.exec('ep6-perlcritic ' + remoteFile, undefined,
+                function (data) {
+                    parser(data, undefined, 'Failed test');
+                });
 
-        return streamWrapper([
-                config['perl-exec'] + ' -cw ' + remoteFile, 'ep6-perlcritic ' + remoteFile
-            ],
-            function (stream) {
-                return stream.indexOf('syntax OK') > -1;
-            },
-            function (stream) {
-                return stream.indexOf('syntax error') > -1 || stream.indexOf('Failed test') > -1;
-            }
-        );
+        gutil.log(gutil.colors.yellow('Linting ' + path.basename(file)));
+
+        ssh.exec(config['perl-exec'] + ' -cw ' + remoteFile, undefined,
+            function (data) {
+                parser(data, 'syntax OK', 'syntax error');
+            }, perlCritic)();
     },
 
     tle = function (remoteFile) {
         remoteFile = slash(remoteFile);
 
-        gutil.log(gutil.colors.blue('Analysing TLE: ' + remoteFile));
+        gutil.log(gutil.colors.yellow('Linting ' + path.basename(remoteFile)));
 
-        return streamWrapper([
-                'ep6-tlec -file ' + remoteFile
-            ],
-            function (stream) {
-                return stream.indexOf('syntax ok') > -1;
-            },
-            function (stream) {
-                return stream.indexOf('syntax error') > -1;
-            }
-        );
+        ssh.exec('ep6-tlec -file ' + remoteFile, function (data) {
+            parser(data, 'syntax ok', 'syntax error');
+        })();
     },
 
     reinstall = function (done) {
-        var connected = false;
-
         gutil.log(gutil.colors.yellow('Starting reinstall, this will take a while ... time to grab a coffee'));
 
-        return ssh.exec([config['perl-exec'] + ' Makefile.PL', 'make reinstall'], {filePath: config['cartridges-remote']})
-            .on('ssh2Data', function (stream) {
-                gutil.log(stream.toString().replace(/^\s+|\s+$/g, ''));
-            })
-            .on('error', function (stream) {
-                gutil.log(gutil.colors.red(stream.toString().replace(/^\s+|\s+$/g, '')));
-            })
-            .on('close', function () {
-                if (connected) {
-                    done();
-                }
-                connected = true;
-            });
+        ssh.spawn('"cd ' + config['cartridges-remote'] + '/DE_EPAGES; ' + config['perl-exec'] + ' Makefile.PL; make reinstall"', function (data) {
+            gutil.log(data.toString().replace(/^\s+|\s+$/g, ''));
+        }, function (data) {
+            gutil.log(gutil.colors.red(data.toString().replace(/^\s+|\s+$/g, '')));
+        }, done)();
     },
 
     build = function (done) {
-        var connected = false;
-
-        ssh.exec([config['perl-exec'] + ' Makefile.PL', 'make build_ui'], {
-                filePath: config['cartridges-base']
-            })
-            .on('ssh2Data', function (stream) {
-                gutil.log(stream.toString().replace(/^\s+|\s+$/g, ''));
-            })
-            .on('error', function (stream) {
-                gutil.log(gutil.colors.red(stream.toString().replace(/^\s+|\s+$/g, '')));
-            })
-            .on('close', function () {
-                if (connected) {
-                    done();
-                }
-                connected = true;
-            });
+        ssh.spawn('"cd ' + config['cartridges-remote'] + '/DE_EPAGES; ' + config['perl-exec'] + ' Makefile.PL; make build_ui"', function (data) {
+            gutil.log(data.toString().replace(/^\s+|\s+$/g, ''));
+        }, function (data) {
+            gutil.log(gutil.colors.red(data.toString().replace(/^\s+|\s+$/g, '')));
+        }, done)();
     };
 
 module.exports = {

@@ -3,17 +3,12 @@
 
 // Gulp plugins
 var gulp = require('gulp'),
-    eslint = require('gulp-eslint'),
     gutil = require('gulp-util'),
-    livereload = require('gulp-livereload'),
-
     ping = require('ping'),
 
     watcher = require('./lib/file-watch'),
     perl = require('./lib/perl'),
     config = require('./config');
-
-livereload.listen();
 
 /**
  * File watch and trigger build of:
@@ -28,13 +23,12 @@ gulp.task('watch', config['watch-tasks']);
  * CSS/LESS
  */
 gulp.task('styles', ['is-online'], function () {
-    return watcher(['/**/Data/Public/**/*.css', '/**/Data/Public/**/*.less'], function (source, copyToShared, fixAccessRights) {
-        gulp.src(source)
-            .pipe(copyToShared)
-            .pipe(fixAccessRights);
-    }, function (source, removeFromShared) {
-        gulp.src(source)
-            .pipe(removeFromShared);
+    return watcher(['/**/Data/Public/**/*.css', '/**/Data/Public/**/*.less'], function (file, copyToShared) {
+        copyToShared();
+    }, function (file, removeFromShared) {
+        removeFromShared();
+    }, function (file, addToShared) {
+        addToShared();
     });
 });
 
@@ -42,16 +36,12 @@ gulp.task('styles', ['is-online'], function () {
  * Javascript
  */
 gulp.task('scripts', ['is-online'], function () {
-    return watcher('/**/Data/Public/**/*.js', function (source, copyToShared, fixAccessRights) {
-        gulp.src(source)
-            // Linting
-            .pipe(eslint())
-            .pipe(eslint.format())
-            .pipe(copyToShared)
-            .pipe(fixAccessRights);
-    }, function (source, removeFromShared) {
-        gulp.src(source)
-            .pipe(removeFromShared);
+    return watcher('/**/Data/Public/**/*.js', function (file, copyToShared) {
+        copyToShared();
+    }, function (file, removeFromShared) {
+        removeFromShared();
+    }, function (file, addToShared) {
+        addToShared();
     });
 });
 
@@ -69,8 +59,7 @@ gulp.task('perl', ['is-online'], function () {
  */
 gulp.task('html', ['is-online'], function () {
     return watcher('/**/*.html', function (source) {
-        return perl.tle(source.replace(config['cartridges-local'], config['cartridges-remote']))
-            .pipe(livereload());
+        return perl.tle(source.replace(config['cartridges-local'], config['cartridges-remote']));
     });
 });
 

@@ -72,6 +72,7 @@ module.exports = generator.Base.extend({
         fs.removeSync(this.destinationPath('package.json'));
         fs.removeSync(this.destinationPath('lib/perl.js'));
         fs.removeSync(this.destinationPath('lib/file-watch.js'));
+        fs.removeSync(this.destinationPath('lib/ssh.js'));
         fs.removeSync(this.destinationPath('node_modules'));
         fs.removeSync(path.resolve(path.dirname(config['cartridges-local']), '.editorconfig'));
         fs.removeSync(path.resolve(path.dirname(config['cartridges-local']), '.eslintrc'));
@@ -97,6 +98,11 @@ module.exports = generator.Base.extend({
         this.fs.copyTpl(
             this.templatePath('gulp/lib/perl.js'),
             this.destinationPath('lib/perl.js')
+        );
+
+        this.fs.copyTpl(
+            this.templatePath('gulp/lib/ssh.js'),
+            this.destinationPath('lib/ssh.js')
         );
 
         // Dotfiles

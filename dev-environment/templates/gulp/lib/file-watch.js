@@ -4,28 +4,17 @@
 var _ = require('lodash'),
     gulp = require('gulp'),
     gutil = require('gulp-util'),
-    GulpSSH = require('gulp-ssh'),
     watch = require('gulp-watch'),
     path = require('path'),
     config = require('../config'),
+    ssh = require('./ssh'),
     figures = require('figures'),
     Spinner = require('cli-spinner').Spinner;
 
-var buildPath = [config.webroot, 'StoreTypes', config.version, config.store].join('/'),
+var buildPath = [config.webroot, 'StoreTypes', config.version, config.store].join('/');
 
-    sshConfig = {
-        host: config['vm-domain'],
-        port: 22,
-        username: config['vm-usr'],
-        password: config['vm-pwd']
-    },
 
-    ssh = new GulpSSH({
-        ignoreErrors: true,
-        sshConfig: sshConfig
-    });
-
-module.exports = function (pattern, onChange, onDelete) {
+module.exports = function (pattern, onChange, onDelete, onAdd) {
     var activitySpinner,
         spinnerTimeout,
         searchPatterns = '';
@@ -49,18 +38,21 @@ module.exports = function (pattern, onChange, onDelete) {
 
     return gulp.src(pattern).pipe(
         watch(pattern, function (file) {
-            var relativePath = file.path.replace(/^.*?\/Data\/Public/, ''),
-                destinationFilePath = buildPath + relativePath,
-                destinationDirectoryPath = buildPath + path.dirname(relativePath);
+            var relativeFilePath = file.path.replace(/^.*?\/Data\/Public/, ''),
+                destinationFilePath = buildPath + relativeFilePath;
 
             file.path.replace(path.sep, '/');
 
             if (file.event === 'unlink' && onDelete !== undefined) {
-                onDelete(file.path, ssh.shell('rm ' + destinationFilePath));
+                onDelete(file.path, ssh.remove(destinationFilePath));
             }
 
             if (file.event === 'change' && onChange !== undefined) {
-                onChange(file.path, ssh.dest(destinationDirectoryPath), ssh.exec(['chown eprunapp:apache ' + destinationFilePath]));
+                onChange(file.path, ssh.copy(file.path, destinationFilePath));
+            }
+
+            if (file.event === 'add' && onAdd !== undefined) {
+                onAdd(file.path, ssh.copy(file.path, destinationFilePath, ssh.chown(destinationFilePath)));
             }
 
             if (file.event === undefined) {

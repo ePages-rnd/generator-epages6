@@ -5,17 +5,17 @@ Tools and automation for ePages 6 development.
 
 ## Installation
 
-1. Install [NodeJS](https://nodejs.org/)
+1. Configure your ePages 6 VM properly, enable authorization via ssh-key
 
-2. Install Yeoman ``npm install -g yo``
+2. Install [NodeJS](https://nodejs.org/)
 
-3. Install the ePages 6 generator ``npm install -g generator-epages6``
+3. Install Yeoman ``npm install -g yo``
 
-4. Go one level above your local ``ePages 6 cartridges`` folder and run ``yo epages6``
+4. Install the ePages 6 generator ``npm install -g generator-epages6``
 
-5. Follow the instructions
+5. Go one level above your local ``ePages 6 cartridges`` folder and run ``yo epages6``
 
-6. (Optional) Install [Chrome Livereload Plugin](https://chrome.google.com/webstore/detail/livereload/jnihajbhpnppcggbcgedagnkighmdlei)
+6. Follow the instructions
 
 ## Available gulp tasks
 
@@ -25,10 +25,10 @@ Tools and automation for ePages 6 development.
 
 ``watch``: Runs file watchers for ``scripts``, ``styles``, ``perl`` and ``html``, based on your settings
 
-``scripts``: Lints your JavaScript file and copies it to the webroot via sftp, triggers livereload
+``scripts``: Copies modified and new JavaScripts to the webroot via scp
 
-``styles``: Copies the less and css files to the webroot via sftp, triggers livereload
+``styles``: Copies modified and new less and css files to the webroot via scp
 
-``html``: Runs remote tle linting on the vm, triggers livereload
+``html``: Runs remote tle linting on the vm
 
 ``perl``: Runs remote perl linting on the vm
