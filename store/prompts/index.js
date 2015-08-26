@@ -18,7 +18,7 @@ module.exports = function (config, done) {
             name: 'store',
             message: 'Store'
         };
-
+        
     ssh.exec('ls -d ' + config.webroot + '/StoreTypes/' + config.version + '/*/', {
         out: function (response) {
             var stores = [],
@@ -45,4 +45,4 @@ module.exports = function (config, done) {
             done(input);
         }
     }).start();
-}
+};

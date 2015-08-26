@@ -1,5 +1,5 @@
 # ePages 6 Yeoman Generator
-Tools and automation for ePages 6 development.
+Generator for tools and automation for ePages 6 development.
 
 ![Preview](https://raw.githubusercontent.com/ePages-rnd/generator-epages6/master/demo-data/demo-generator.gif)
 
@@ -13,22 +13,29 @@ Tools and automation for ePages 6 development.
 
 4. Install the ePages 6 generator ``npm install -g generator-epages6``
 
-5. Go one level above your local ``ePages 6 cartridges`` folder and run ``yo epages6``
+5. Go to a directory of your choice (except the ``ePages 6 cartridges`` folder) and run ``yo epages6``
 
 6. Follow the instructions
 
-## Available gulp tasks
+## Available Actions
 
-``default``: Triggers ``watch``
+``yo epages6:vm``
+Set the VM configuration
 
-``build``: Runs ``make build_ui``
+``yo epages6:cartridges``
+Set the cartridges folder path
 
-``watch``: Runs file watchers for ``scripts``, ``styles``, ``perl`` and ``html``, based on your settings
+``yo epages6:store``
+Select a store
 
-``scripts``: Copies modified and new JavaScripts to the webroot via scp
+``yo epages6:version``
+Select a ePages6 version
 
-``styles``: Copies modified and new less and css files to the webroot via scp
+``yo epages6:devtools``
+Installs the [ePages6 Devtools](https://github.com/ePages-rnd/devtools)
 
-``html``: Runs remote tle linting on the vm
+``yo epages6:dotfiles``
+Installs the [ePages6 dotfiles](https://github.com/ePages-rnd/dotfiles)
 
-``perl``: Runs remote perl linting on the vm
+``yo epages6:cli-tools``
+Installs the [epages6 cli tools](https://github.com/ePages-rnd/epages6-cli) on the VM
