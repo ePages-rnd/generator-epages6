@@ -39,6 +39,11 @@ module.exports = generator.Base.extend({
         this.composeWith('epages6:store').on('end', done);
     },
 
+    setTasks: function () {
+        var done = this.async;
+        this.composeWith('epages6:watch').on('end', done);
+    },
+
     installDevtools: function () {
         var done = this.async;
         this.composeWith('epages6:devtools').on('end', done);

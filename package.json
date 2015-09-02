@@ -1,6 +1,6 @@
 {
   "name": "generator-epages6",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "ePages 6 Devtools Generator",
   "main": "app/index.js",
   "repository": {
@@ -17,6 +17,7 @@
     "store",
     "version",
     "vm",
+    "watch",
     "logo.js",
     "config.js"
   ],
