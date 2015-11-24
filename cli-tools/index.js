@@ -3,16 +3,10 @@
 
 var generator = require('yeoman-generator'),
     chalk = require('chalk'),
-    configInterface = require('../config'),
+    config = require('../config'),
     SimpleSSH = require('simple-ssh');
 
-var config;
-
 module.exports = generator.Base.extend({
-
-    initializing: function () {
-        config = configInterface(this.destinationPath('config.json'));
-    },
 
     install: function () {
         var self = this,

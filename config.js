@@ -3,9 +3,11 @@
 
 var _ = require('lodash'),
     fs = require('fs-extra'),
-    path = require('path');
+    path = require('path'),
+    osenv = require('osenv'),
+    configFile = path.resolve(osenv.home(), '.epages-config');
 
-module.exports = function (configFile) {
+module.exports = (function () {
 
     var config = {};
 
@@ -13,7 +15,7 @@ module.exports = function (configFile) {
             var existingConfig = {};
 
             try {
-                existingConfig = fs.readJsonSync(path.resolve(configFile));
+                existingConfig = fs.readJsonSync(configFile);
             } catch (e) {
 
             } finally {
@@ -29,7 +31,7 @@ module.exports = function (configFile) {
         },
 
         write = function () {
-            fs.writeJSONSync(path.resolve(configFile), config.data);
+            fs.writeJSONSync(configFile, config.data);
             return config;
         };
 
@@ -44,4 +46,4 @@ module.exports = function (configFile) {
     config.write = write;
 
     return load();
-};
+}());
