@@ -5,13 +5,9 @@ var generator = require('yeoman-generator'),
     path = require('path'),
     fs = require('fs-extra'),
     chalk = require('chalk'),
-    configInterface = require('../config'),
     config = require('../config');
 
 module.exports = generator.Base.extend({
-    initializing: function () {
-        config = configInterface(this.destinationPath('config.json'));
-    },
 
     clean: function () {
         if (config.data['cartridges-local'] !== undefined) {
